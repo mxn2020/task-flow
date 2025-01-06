@@ -20,7 +20,7 @@ git remote add template https://github.com/mxn2020/next-supabase-template.git
 4. Pull template updates when needed:
 ```bash
 git fetch template
-git merge template/main
+git merge template/main --allow-unrelated-histories
 ```
 
 ## Setup
