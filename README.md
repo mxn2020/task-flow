@@ -10,6 +10,19 @@ Full-stack template with Next.js, Supabase, NextAuth, Upstash Redis, and QStash.
 - Protected Routes
 - Landing Page
 
+## Template Usage
+1. Use template to create new repository on GitHub
+2. Clone new repository
+3. Add template as upstream:
+```bash
+git remote add template https://github.com/mxn2020/next-supabase-template.git
+```
+4. Pull template updates when needed:
+```bash
+git fetch template
+git merge template/main
+```
+
 ## Setup
 1. Clone repository
 2. Copy .env.example to .env
