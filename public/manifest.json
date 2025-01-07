@@ -1,12 +1,12 @@
 {
-  "name": "TaskFlow",
-  "short_name": "TaskFlow",
+  "name": "NextStack Pro",
+  "short_name": "NextStack",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "orientation": "any",
-  "description": "A powerful todo list and brainstorming PWA",
+  "description": "A modern, full-stack Next.js template with authentication, database, caching, and PWA support",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -27,14 +27,14 @@
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "TaskFlow desktop view"
+      "label": "NextStack Pro desktop view"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "1170x2532",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "TaskFlow mobile view"
+      "label": "NextStack Pro mobile view"
     }
   ]
 }

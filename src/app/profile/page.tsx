@@ -9,38 +9,91 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Save } from 'lucide-react';
+import { Save, Loader2, AlertCircle } from 'lucide-react';
+import { AppError } from '@/lib/errors/types';
+
+interface Profile {
+  name: string;
+  email: string;
+}
 
 export default function ProfilePage() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [profile, setProfile] = useState<Profile>({ name: '', email: '' });
   const [status, setStatus] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const loadProfile = useCallback(async () => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) {
-      setName(data.name || '');
-      setEmail(data.email);
+    if (!userId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw new AppError('Failed to load profile', 500, 'FETCH_ERROR');
+      
+      if (data) {
+        setProfile({
+          name: data.name || '',
+          email: data.email
+        });
+      }
+    } catch (err) {
+      console.error('Error loading profile:', err);
+      setStatus({
+        message: err instanceof AppError ? err.message : 'Failed to load profile',
+        type: 'error'
+      });
+    } finally {
+      setLoading(false);
     }
   }, [userId]);
 
   useEffect(() => {
-    if (userId) {
-      loadProfile();
-    }
-  }, [userId, loadProfile]);
+    loadProfile();
+  }, [loadProfile]);
 
   async function updateProfile(e: React.FormEvent) {
     e.preventDefault();
+    setSaving(true);
+    setStatus(null);
+
     try {
-      await supabase.from('profiles').update({ name }).eq('id', userId);
+      if (!profile.name.trim()) {
+        throw new AppError('Name is required', 400, 'VALIDATION_ERROR');
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name: profile.name.trim() })
+        .eq('id', userId);
+
+      if (error) throw new AppError('Failed to update profile', 500, 'UPDATE_ERROR');
+
       setStatus({ message: 'Profile updated successfully', type: 'success' });
       setTimeout(() => setStatus(null), 3000);
-    } catch {
-      setStatus({ message: 'Failed to update profile', type: 'error' });
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setStatus({
+        message: err instanceof AppError ? err.message : 'Failed to update profile',
+        type: 'error'
+      });
+    } finally {
+      setSaving(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -57,18 +110,22 @@ export default function ProfilePage() {
           <CardContent>
             <form onSubmit={updateProfile} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Name</label>
+                <label htmlFor="name" className="text-sm font-medium">Name</label>
                 <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  id="name"
+                  value={profile.name}
+                  onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Your name"
+                  aria-invalid={status?.type === 'error'}
+                  disabled={saving}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
+                <label htmlFor="email" className="text-sm font-medium">Email</label>
                 <Input
-                  value={email}
+                  id="email"
+                  value={profile.email}
                   readOnly
                   disabled
                   className="bg-secondary"
@@ -82,19 +139,29 @@ export default function ProfilePage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className={`p-4 rounded-md ${
+                  className={`flex items-center gap-2 p-4 rounded-md ${
                     status.type === 'success' 
                       ? 'bg-green-50 text-green-700 dark:bg-green-900/50 dark:text-green-300' 
                       : 'bg-destructive/10 text-destructive'
                   }`}
                 >
+                  {status.type === 'error' && <AlertCircle className="h-4 w-4" />}
                   {status.message}
                 </motion.div>
               )}
 
-              <Button type="submit">
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
+              <Button type="submit" disabled={saving}>
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Changes
+                  </>
+                )}
               </Button>
             </form>
           </CardContent>

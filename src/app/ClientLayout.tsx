@@ -6,20 +6,17 @@ import { SessionProvider } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import AppLayout from '@/components/app/AppLayout';
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+type ClientLayoutProps = {
+  children: React.ReactNode;
+};
+
+export default function ClientLayout({ children }: ClientLayoutProps) {
   const pathname = usePathname();
-  const isLandingPage = pathname === '/';
-  const isAuthPage = pathname.startsWith('/auth/');
+  const isPublicRoute = pathname === '/' || pathname.startsWith('/auth/');
 
   return (
     <SessionProvider>
-      {!isLandingPage && !isAuthPage ? (
-        <AppLayout>
-          {children}
-        </AppLayout>
-      ) : (
-        children
-      )}
+      {isPublicRoute ? children : <AppLayout>{children}</AppLayout>}
     </SessionProvider>
   );
 }
