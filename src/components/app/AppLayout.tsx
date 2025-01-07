@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
+import { SystemScopesNav } from '@/components/task/SystemScopesNav';
+import { ScopeDialog } from '@/components/task/ScopeDialog';
 import { supabase } from '@/lib/supabaseClient';
 import { toCamelCase, toSnakeCase } from '@/lib/utils';
 import { useMenu } from '@/contexts/MenuContext';
@@ -183,9 +185,56 @@ const DesktopLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <nav className="flex-1 px-4">
+            <SystemScopesNav />
 
             <Separator className="my-4" />
 
+            <Link
+              href="/templates"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/templates' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+                }`}
+            >
+              <Amphora className="h-5 w-5" />
+              Templates
+            </Link>
+
+            <Link
+              href="/organization"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/organization' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+                }`}
+            >
+              <FolderKanban className="h-5 w-5" />
+              Organization
+            </Link>
+
+            <Separator className="my-4" />
+
+            {userScopes.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full border-dashed"
+                  onClick={() => setScopeDialogOpen(true)}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Scope
+                </Button>
+              </motion.div>
+            ) : (
+              <ScopeList
+                userScopes={userScopes}
+                onEdit={(scope) => {
+                  setSelectedScope(scope);
+                  setScopeDialogOpen(true);
+                }}
+                onVisibilityToggle={handleScopeVisibility}
+                pathname={pathname}
+              />
+            )}
           </nav>
         </div>
       </motion.aside>
@@ -203,6 +252,15 @@ const DesktopLayout = ({ children }: { children: React.ReactNode }) => {
         </main>
       </div>
 
+      <ScopeDialog
+        scope={selectedScope}
+        isOpen={scopeDialogOpen}
+        onClose={() => {
+          setScopeDialogOpen(false);
+          setSelectedScope(null);
+        }}
+        onSave={handleScopeSave}
+      />
     </motion.div>
   );
 };
@@ -266,6 +324,7 @@ const MobileLayout = ({ children }: { children: React.ReactNode }) => {
         animate={{ y: 0 }}
       >
         <div className="flex justify-around h-full items-center">
+          <SystemScopesNav isMobile />
           <MobileNav />
         </div>
       </motion.nav>
@@ -409,6 +468,46 @@ const MobileMenu = ({ onClose }: { onClose: () => void }) => {
           Dashboard
         </Link>
 
+        <Separator className="my-4" />
+
+        <SystemScopesNav onClose={onClose} />
+
+        <Separator className="my-4" />
+
+        <Link
+          href="/templates"
+          className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/templates' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+            }`}
+          onClick={onClose}
+        >
+          <Amphora className="h-5 w-5" />
+          Templates
+        </Link>
+
+        <Link
+          href="/organization"
+          className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/organization' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+            }`}
+          onClick={onClose}
+        >
+          <FolderKanban className="h-5 w-5" />
+          Organization
+        </Link>
+
+        <Separator className="my-4" />
+
+        {userScopes.map((scope) => (
+          <Link
+            key={scope.id}
+            href={`/scopes/${scope.slug}`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === `/scopes/${scope.slug}` ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+              }`}
+            onClick={onClose}
+          >
+            <DynamicIcon name={scope.icon} className="h-5 w-5" />
+            {scope.name}
+          </Link>
+        ))}
       </nav>
     </div>
   );

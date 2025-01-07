@@ -1,13 +1,13 @@
-// app/notes/page.tsx
+// app/brainstorms/page.tsx
 'use client';
 
 import { useEffect } from 'react';
 import { ScopeItemSystemContainer } from '@/components/task/ScopeItemSystemContainer';
-import { useNotes } from '@/hooks/useNotes';
+import { useBrainstorms } from '@/hooks/useBrainstorms';
 
-export default function NotePage() {
+export default function BrainstormPage() {
   const {
-    notes,
+    brainstorms,
     groups,
     types,
     categories,
@@ -18,12 +18,12 @@ export default function NotePage() {
     setViewOptions,
     setFilterOptions,
     setItemOptions,
-    createNote,
-    updateNote,
-    archiveNote,
-    softDeleteNote,
+    createBrainstorm,
+    updateBrainstorm,
+    archiveBrainstorm,
+    softDeleteBrainstorm,
     refreshMetadata,
-  } = useNotes();
+  } = useBrainstorms();
 
   useEffect(() => {
     refreshMetadata();
@@ -31,9 +31,9 @@ export default function NotePage() {
 
   return (
     <ScopeItemSystemContainer
-      scopeType="note"
+      scopeType="brainstorm"
       baseProps={{
-        items: notes,
+        items: brainstorms,
         groups,
         types,
         categories,
@@ -44,10 +44,10 @@ export default function NotePage() {
         onViewOptionsChange: setViewOptions,
         onFilterOptionsChange: setFilterOptions,
         onItemOptionsChange: setItemOptions,
-        onItemCreate: createNote,
-        onItemUpdate: updateNote,
-        onItemArchive: archiveNote,
-        onItemDelete: softDeleteNote,
+        onItemCreate: createBrainstorm,
+        onItemUpdate: updateBrainstorm,
+        onItemArchive: archiveBrainstorm,
+        onItemDelete: softDeleteBrainstorm,
       }}
     />
   );

@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger }
   from '@/components/ui/dropdown-menu';
-import { ScopeDialog } from '@/components/app/ScopeDialog';
-import { ItemDialog } from '@/components/app/ItemDialog';
+import { ScopeDialog } from '@/components/task/ScopeDialog';
+import { ItemDialog } from '@/components/task/ItemDialog';
 import { Group, Type, Category, Label, Scope } from '@/types';
 import {
   ChevronLeft, MoreVertical, Archive, ArchiveRestore, Pen, Trash2, Plus, ChevronRight,

@@ -1,13 +1,15 @@
 // utils/validation.ts
+import { Scope, SystemScopeType } from '@/types';
+import { BookmarkScope, BrainstormScope, ChecklistScope, EventScope, FlowScope, MilestoneScope, NoteScope, ResourceScope, ScopeItem, TimeblockScope } from '@/types/scopes_2';
 import { toSnakeCase, toCamelCase } from '@/lib/utils';
 
-export type FieldType =
-  | 'string'
-  | 'number'
-  | 'boolean'
-  | 'date'
-  | 'array'
-  | 'select'
+export type FieldType = 
+  | 'string' 
+  | 'number' 
+  | 'boolean' 
+  | 'date' 
+  | 'array' 
+  | 'select' 
   | 'text'
   | 'object';
 
@@ -134,3 +136,143 @@ export function validateFieldValue(value: any, config: FieldConfig, field: strin
   }
 }
 
+export function validateScope(
+  scope: Scope, 
+  data: Partial<ScopeItem>, 
+  isDatabase = false
+) {
+  const { metadata } = scope;
+  const { fields } = metadata;
+
+  const processedData = isDatabase ? toCamelCase(data) : data;
+  const processedFields = isDatabase ? 
+    toCamelCase(fields) as Record<string, FieldConfig> : 
+    fields;
+
+  Object.entries(processedFields).forEach(([field, config]) => {
+    if (processedData[field] !== undefined) {
+      validateFieldValue(processedData[field], config, field);
+    }
+  });
+}
+
+
+export function validateSystemScope(
+  scopeType: SystemScopeType | string, 
+  data: Partial<ScopeItem>, 
+  isDatabase = false
+ ) {
+  const processedData = isDatabase ? toCamelCase(data) : data;
+  const metadata = processedData.metadata;
+ 
+  if (!metadata) return;
+ 
+  switch (scopeType) {
+    case 'brainstorm':
+    case 'note': {
+      const scope = metadata as BrainstormScope['metadata'] | NoteScope['metadata'];
+      validateRequiredFields(scope, ['content'], isDatabase);
+      validateFieldValue(scope.content, { type: 'text', required: true }, 'content');
+      break;
+    }
+ 
+    case 'checklist': {
+      const scope = metadata as ChecklistScope['metadata'];
+      if (scope.items) {
+        validateFieldValue(scope.items, {
+          type: 'array',
+          itemConfig: { type: 'object' }
+        }, 'items');
+      }
+      break;
+    }
+ 
+    case 'flow': {
+      const scope = metadata as FlowScope['metadata'];
+      validateRequiredFields(scope, ['flow_status'], isDatabase);
+      validateFieldValue(scope.flow_status, {
+        type: 'select',
+        options: ['pending', 'ready', 'blocked', 'completed'],
+        required: true
+      }, 'flow_status');
+      
+      if (scope.dependencies) {
+        validateFieldValue(scope.dependencies, {
+          type: 'array',
+          itemConfig: { type: 'object' }
+        }, 'dependencies');
+      }
+      break;
+    }
+ 
+    case 'milestone': {
+      const scope = metadata as MilestoneScope['metadata'];
+      validateRequiredFields(scope, ['successCriteria', 'progress'], isDatabase);
+      validateFieldValue(scope.progress, {
+        type: 'number',
+        min: 0,
+        max: 100,
+        required: true
+      }, 'progress');
+      validateFieldValue(scope.successCriteria, {
+        type: 'array',
+        itemConfig: { type: 'string' },
+        required: true
+      }, 'successCriteria');
+      break;
+    }
+ 
+    case 'resource': {
+      const scope = metadata as ResourceScope['metadata'];
+      validateRequiredFields(scope, ['format'], isDatabase);
+      validateFieldValue(scope.format, {
+        type: 'select',
+        options: ['article', 'video', 'book', 'course'],
+        required: true
+      }, 'format');
+      break;
+    }
+ 
+    case 'timeblock': {
+      const scope = metadata as TimeblockScope['metadata'];
+      validateRequiredFields(scope, ['startTime', 'endTime'], isDatabase);
+      validateFieldValue(scope.startTime, {
+        type: 'date',
+        required: true
+      }, 'startTime');
+      validateFieldValue(scope.endTime, {
+        type: 'date',
+        required: true
+      }, 'endTime');
+      break;
+    }
+ 
+    case 'event': {
+      const scope = metadata as EventScope['metadata'];
+      validateRequiredFields(scope, ['start', 'end', 'recurring'], isDatabase);
+      validateFieldValue(scope.start, {
+        type: 'date',
+        required: true
+      }, 'start');
+      validateFieldValue(scope.end, {
+        type: 'date',
+        required: true
+      }, 'end');
+      validateFieldValue(scope.recurring, {
+        type: 'boolean',
+        required: true
+      }, 'recurring');
+      break;
+    }
+ 
+    case 'bookmark': {
+      const scope = metadata as BookmarkScope['metadata'];
+      validateRequiredFields(scope, ['url'], isDatabase);
+      validateFieldValue(scope.url, {
+        type: 'string',
+        required: true
+      }, 'url');
+      break;
+    }
+  }
+ }

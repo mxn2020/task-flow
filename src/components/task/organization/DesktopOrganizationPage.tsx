@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { ScopeDialog } from '@/components/app/ScopeDialog';
-import { ItemDialog } from '@/components/app/ItemDialog';
+import { ScopeDialog } from '@/components/task/ScopeDialog';
+import { ItemDialog } from '@/components/task/ItemDialog';
 import { Group, Type, Category, Label, Scope } from '@/types';
 import { Plus, Trash2, Lock, CheckCircle, Lightbulb, StickyNote, ListChecks, Target, Book, Calendar, CalendarDays, Bookmark, GitBranch } from 'lucide-react';
 

@@ -2,8 +2,8 @@
 
 'use client';
 
-import DesktopOrganizationPage from "@/components/app/organization/DesktopOrganizationPage";
-import MobileOrganizationPage from "@/components/app/organization/MobileOrganizationPage";
+import DesktopOrganizationPage from "@/components/task/organization/DesktopOrganizationPage";
+import MobileOrganizationPage from "@/components/task/organization/MobileOrganizationPage";
 import { useEffect, useState } from "react";
 
 export default function OrganizationPage() {

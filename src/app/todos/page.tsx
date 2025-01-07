@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ScopeItemSystemContainer } from '@/components/app/ScopeItemSystemContainer';
+import { ScopeItemSystemContainer } from '@/components/task/ScopeItemSystemContainer';
 import { useTodos } from '@/hooks/useTodos';
 
 export default function TodoPage() {

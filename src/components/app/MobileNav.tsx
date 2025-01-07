@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { SystemScopesNav } from '@/components/app/SystemScopesNav';
+import { SystemScopesNav } from '@/components/task/SystemScopesNav';
 import { FolderKanban, Settings } from 'lucide-react';
 
 export function MobileNav() {
