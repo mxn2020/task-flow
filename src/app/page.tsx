@@ -7,8 +7,8 @@ import { Card } from '@/components/ui/card';
 import { Brain, CheckCircle, List, LogOut, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import DeviceInfo from '@/components/app/device-info';
-import NavigatorInfo from '@/components/app/nav-info';
+import DeviceInfo from '@/components/app/DeviceInfo';
+import NavigatorInfo from '@/components/app/NavInfo';
 import { useState, useEffect } from 'react';
 
 export default function LandingPage() {

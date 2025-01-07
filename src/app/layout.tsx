@@ -5,7 +5,7 @@ import ClientLayout from './ClientLayout';
 import { OfflineProvider } from '@/components/app/offline-provider';
 import { InstallPrompt } from '@/components/app/InstallPrompt';
 import { ThemeProvider } from '@/contexts/ThemeProvider';
-import { NotificationProvider } from '@/contexts/notification-context';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import TanstackProvider from '@/contexts/TanstackProvider';
 import Script from 'next/script';
 import { MenuProvider } from '@/contexts/MenuContext';
