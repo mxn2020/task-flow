@@ -14,6 +14,7 @@ import { LogOut, Moon, Sun, User, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { AppError } from '@/lib/errors/types';
+import ScopeVisibilitySettings from '@/components/task/ScopeVisibilitySettings';
 
 export default function SettingsPage() {
   const { data: session } = useSession();

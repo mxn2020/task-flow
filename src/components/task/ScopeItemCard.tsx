@@ -1,4 +1,5 @@
 // components/app/ScopeItemCard.tsx
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -241,7 +242,7 @@ export function ScopeItemCard<T extends BaseItem>({
         }
       </Button>
     )
-   );
+  );
 
   return (
     <>
@@ -273,13 +274,14 @@ export function ScopeItemCard<T extends BaseItem>({
         setShowDeleteDialog={setShowDeleteDialog}
       />
 
+      {/* Updated Confirmation Dialogs with async onConfirm */}
       <ArchiveConfirmationDialog
         type={scopeType}
         open={showArchiveDialog}
         onOpenChange={setShowArchiveDialog}
-        onConfirm={() => {
-          archiveItem(item.id);
-          setShowArchiveDialog(false);
+        onConfirm={async () => {
+          // The dialog handles closing after a successful promise
+          await archiveItem(item.id);
         }}
         title={item.title}
       />
@@ -288,9 +290,8 @@ export function ScopeItemCard<T extends BaseItem>({
         type={scopeType}
         open={showRestoreDialog}
         onOpenChange={setShowRestoreDialog}
-        onConfirm={() => {
-          restoreItem(item.id);
-          setShowRestoreDialog(false);
+        onConfirm={async () => {
+          await restoreItem(item.id);
         }}
         title={item.title}
       />
@@ -299,9 +300,8 @@ export function ScopeItemCard<T extends BaseItem>({
         type={scopeType}
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
-        onConfirm={() => {
-          softDeleteItem(item.id);
-          setShowDeleteDialog(false);
+        onConfirm={async () => {
+          await softDeleteItem(item.id);
         }}
         title={item.title}
       />

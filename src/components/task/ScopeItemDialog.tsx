@@ -143,22 +143,6 @@ export function ScopeItemDialog<T extends BaseItem>({
     handleClose();
   };
 
-  const handleArchive = async () => {
-    if (item) {
-      if (!item.archivedAt) {
-        await archiveItem(item.id);
-      }
-      onOpenChange(false);
-    }
-  };
-
-  const handleRestore = async () => {
-    if (item) {
-      await restoreItem(item.id);
-      onOpenChange(false);
-    }
-  };
-
   const handleClose = () => {
     setTitle('');
     setSelectedType('');
@@ -293,10 +277,10 @@ export function ScopeItemDialog<T extends BaseItem>({
       onCancel={handleClose}
       showDelete={!!setShowDeleteDialog && !!item}
       showArchive={!!setShowArchiveDialog && !!item}
-      onDelete={() => setShowDeleteDialog?.(true)}
-      onArchive={handleArchive}
-      isArchived={!!item?.archivedAt}
-      onRestore={handleRestore}
+      onDelete={async () => { setShowDeleteDialog?.(true) }}
+      onArchive={async () => { setShowArchiveDialog?.(true) }}
+      onRestore={async () => { setShowRestoreDialog?.(true) }}
+     isArchived={!!item?.archivedAt}
     >
       <div className="space-y-4">
         <div className="flex gap-4 items-center">
