@@ -2,9 +2,11 @@
 
 'use client';
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import * as LucideIcons from "lucide-react";
 import { IconName } from "@/types/icons";
+import { AppError } from "@/lib/errors/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command-2";
@@ -21,6 +23,7 @@ import {
 interface IconPickerProps {
   selectedIcon?: IconName;
   onIconSelect: (iconName: IconName) => void;
+  onError?: (error: AppError) => void;
   className?: string;
   placeholder?: string;
   defaultView?: 'grid' | 'list';
@@ -45,6 +48,7 @@ interface IconResponse {
 export function IconPicker({
   selectedIcon,
   onIconSelect,
+  onError,
   className,
   placeholder = "Select an icon",
   defaultView = 'grid',
@@ -57,16 +61,48 @@ export function IconPicker({
   const [view, setView] = useState<'grid' | 'list'>(defaultView);
   const [searchValue, setSearchValue] = useState("");
   const observer = useRef<IntersectionObserver | null>(null);
+  const [retryAttempts, setRetryAttempts] = useState(0);
+  const maxRetries = 3;
+  const retryDelay = 1000;
 
   const fetchIcons = async ({ pageParam = 0 }): Promise<IconResponse> => {
-    const params = new URLSearchParams({
-      search: searchValue,
-      page: pageParam.toString(),
-      limit: limit.toString(),
-    });
-    const response = await fetch(`/api/icons?${params}`);
-    if (!response.ok) throw new Error('Failed to fetch icons');
-    return response.json();
+    try {
+      if (!navigator.onLine) {
+        throw new AppError('No internet connection', 503, 'NETWORK_ERROR');
+      }
+
+      const params = new URLSearchParams({
+        search: searchValue,
+        page: pageParam.toString(),
+        limit: limit.toString(),
+      });
+
+      const response = await fetch(`/api/icons?${params}`);
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new AppError(
+          error.message || 'Failed to fetch icons',
+          response.status,
+          'ICON_FETCH_ERROR'
+        );
+      }
+
+      const data = await response.json();
+      setRetryAttempts(0); // Reset retry count on successful fetch
+      return data;
+    } catch (error) {
+      if (retryAttempts < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, retryDelay * (retryAttempts + 1)));
+        setRetryAttempts(prev => prev + 1);
+        return fetchIcons({ pageParam });
+      }
+      throw error instanceof AppError ? error : new AppError(
+        error instanceof Error ? error.message : 'Unknown error occurred',
+        500,
+        'UNKNOWN_ERROR'
+      );
+    }
   };
 
   const {
@@ -80,8 +116,25 @@ export function IconPicker({
     queryKey: ['icons', searchValue],
     queryFn: fetchIcons,
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 0
+    initialPageParam: 0,
+    retry: false // We handle retries manually
   });
+
+  const handleIconSelect = useCallback((iconName: IconName) => {
+    try {
+      if (iconName && !LucideIcons[iconName]) {
+        throw new AppError('Invalid icon selected', 400, 'INVALID_ICON');
+      }
+      onIconSelect(iconName);
+      setOpen(false);
+    } catch (error) {
+      onError?.(error instanceof AppError ? error : new AppError(
+        'Failed to select icon',
+        500,
+        'SELECTION_ERROR'
+      ));
+    }
+  }, [onIconSelect, onError]);
 
   const lastIconRef = useCallback((node: HTMLDivElement) => {
     if (!node || !hasNextPage || isFetching) return;
@@ -90,22 +143,30 @@ export function IconPicker({
 
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasNextPage) {
-        fetchNextPage();
+        fetchNextPage().catch(error => {
+          onError?.(error instanceof AppError ? error : new AppError(
+            'Failed to load more icons',
+            500,
+            'PAGINATION_ERROR'
+          ));
+        });
       }
     });
 
     observer.current.observe(node);
-  }, [hasNextPage, isFetching, fetchNextPage]);
+  }, [hasNextPage, isFetching, fetchNextPage, onError]);
+
+  useEffect(() => {
+    return () => {
+      observer.current?.disconnect();
+    };
+  }, []);
 
   const allIcons = data?.pages.flatMap(page => page.icons) ?? [];
 
-  const handleWheel = (e: { stopPropagation: () => void; }) => {
-    e.stopPropagation();
-  };
-
   const renderIcon = (iconName: IconName, index: number, isLastElement: boolean) => {
     const IconComponent = LucideIcons[iconName] as React.ComponentType<{ className?: string }>;
-  
+
     if (view === 'grid') {
       return (
         <TooltipProvider key={`${iconName}-${index}`}>
@@ -115,10 +176,7 @@ export function IconPicker({
                 <CommandItem
                   ref={isLastElement ? lastIconRef : null}
                   value={iconName}
-                  onSelect={() => {
-                    onIconSelect(iconName);
-                    setOpen(false);
-                  }}
+                  onSelect={() => handleIconSelect(iconName)}
                   className="flex flex-col items-center justify-center h-full w-full"
                 >
                   <IconComponent className="h-8 w-8" />
@@ -132,16 +190,13 @@ export function IconPicker({
         </TooltipProvider>
       );
     }
-  
+
     return (
       <CommandItem
         ref={isLastElement ? lastIconRef : null}
         key={`${iconName}-${index}`}
         value={iconName}
-        onSelect={() => {
-          onIconSelect(iconName);
-          setOpen(false);
-        }}
+        onSelect={() => handleIconSelect(iconName)}
         className="flex items-center gap-2 p-2"
       >
         <IconComponent className="h-6 w-6" />
@@ -183,7 +238,7 @@ export function IconPicker({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              onIconSelect('' as IconName);
+              handleIconSelect('' as IconName);
             }}
             aria-label="Clear Selected Icon"
           />
@@ -222,7 +277,7 @@ export function IconPicker({
 
             <div
               className="max-h-[320px] overflow-y-auto"
-              onWheel={handleWheel}
+              onWheel={(e) => e.stopPropagation()}
               style={{ touchAction: 'pan-y' }}
             >
               <CommandGroup>
@@ -233,9 +288,16 @@ export function IconPicker({
                       Loading icons...
                     </div>
                   ) : isError ? (
-                    <div className="py-6 text-center text-sm text-red-500">
-                      {error instanceof Error ? error.message : 'Failed to load icons'}
-                    </div>
+                    <Alert variant="destructive" className="m-2">
+                      <AlertDescription>
+                        {error instanceof AppError ? error.message : 'Failed to load icons'}
+                        {retryAttempts > 0 && (
+                          <div className="text-sm mt-1">
+                            Retry attempt {retryAttempts} of {maxRetries}
+                          </div>
+                        )}
+                      </AlertDescription>
+                    </Alert>
                   ) : allIcons.length === 0 ? (
                     <div className="py-6 text-center text-sm text-gray-500">
                       No icons found.
@@ -255,10 +317,10 @@ export function IconPicker({
                       view === 'list' && 'flex flex-col gap-1'
                     )}>
                       {allIcons.map((iconName, index) => renderIcon(
-                      iconName,
-                      index,
-                      index === allIcons.length - 1
-                    ))}
+                        iconName,
+                        index,
+                        index === allIcons.length - 1
+                      ))}
                     </div>
                   )}
                   {isFetching && allIcons.length > 0 && (
@@ -275,4 +337,3 @@ export function IconPicker({
     </Popover>
   );
 }
-

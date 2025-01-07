@@ -142,7 +142,7 @@ export class NotificationManager {
         new Notification(title, {
           body: message,
           icon: '/icons/icon-192x192.png',
-          tag: 'taskflow-notification'
+          tag: 'nextstakpro-notification'
         });
       }
     }

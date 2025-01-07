@@ -1,5 +1,7 @@
-// ConfirmationDialog.tsx
-import React, { JSX } from 'react';
+// components/app/ConfirmationDialog.tsx
+
+import React from 'react';
+import { Loader2 } from 'lucide-react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -10,12 +12,13 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export interface ConfirmationDialogProps {
+interface ConfirmationDialogProps {
     type: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onConfirm: () => void;
+    onConfirm: () => Promise<void>;
     title: string;
     description: string;
     confirmText?: string;
@@ -31,7 +34,23 @@ export function ConfirmationDialog({
     description,
     confirmText = "Confirm",
     cancelText = "Cancel"
-}: ConfirmationDialogProps): JSX.Element {
+}: ConfirmationDialogProps) {
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+
+    const handleConfirm = async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            await onConfirm();
+            onOpenChange(false);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent>
@@ -39,12 +58,19 @@ export function ConfirmationDialog({
                     <AlertDialogTitle>{title}</AlertDialogTitle>
                     <AlertDialogDescription>{description}</AlertDialogDescription>
                 </AlertDialogHeader>
+                {error && (
+                    <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
                 <AlertDialogFooter>
-                    <AlertDialogCancel>{cancelText}</AlertDialogCancel>
+                    <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
                     <AlertDialogAction
                         className="bg-destructive text-destructive-foreground"
-                        onClick={onConfirm}
+                        onClick={handleConfirm}
+                        disabled={isLoading}
                     >
+                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                         {confirmText}
                     </AlertDialogAction>
                 </AlertDialogFooter>
@@ -55,39 +81,26 @@ export function ConfirmationDialog({
 
 type ConfirmationProps = Pick<ConfirmationDialogProps, 'type' | 'open' | 'onOpenChange' | 'onConfirm' | 'title'>;
 
-export const DeleteConfirmationDialog: React.FC<ConfirmationProps> = ({ type, title, open, onOpenChange, onConfirm }) => (
+export const DeleteConfirmationDialog: React.FC<ConfirmationProps> = (props) => (
     <ConfirmationDialog
-        type={type}
-        open={open}
-        onOpenChange={onOpenChange}
-        onConfirm={onConfirm}
-        title={`Delete ${type}`}
-        description={`Are you sure you want to delete "${title.length > 50 ? title.slice(0, 50) + '...' : title}"?`}
+        {...props}
+        description={`Are you sure you want to delete "${props.title.length > 50 ? props.title.slice(0, 50) + '...' : props.title}"?`}
         confirmText="Delete"
     />
- );
- 
- export const ArchiveConfirmationDialog: React.FC<ConfirmationProps> = ({ type, title, open, onOpenChange, onConfirm }) => (
+);
+
+export const ArchiveConfirmationDialog: React.FC<ConfirmationProps> = (props) => (
     <ConfirmationDialog
-        type={type}
-        open={open}
-        onOpenChange={onOpenChange}
-        onConfirm={onConfirm}
-        title={`Archive ${type}`}
-        description={`Are you sure you want to archive "${title.length > 50 ? title.slice(0, 50) + '...' : title}"?`}
+        {...props}
+        description={`Are you sure you want to archive "${props.title.length > 50 ? props.title.slice(0, 50) + '...' : props.title}"?`}
         confirmText="Archive"
     />
- );
+);
 
- export const RestoreConfirmationDialog: React.FC<ConfirmationProps> = ({ type, title, open, onOpenChange, onConfirm }) => (
+export const RestoreConfirmationDialog: React.FC<ConfirmationProps> = (props) => (
     <ConfirmationDialog
-        type={type}
-        open={open}
-        onOpenChange={onOpenChange}
-        onConfirm={onConfirm}
-        title={`Restore ${type}`}
-        description={`Are you sure you want to restore "${title.length > 50 ? title.slice(0, 50) + '...' : title}"?`}
+        {...props}
+        description={`Are you sure you want to restore "${props.title.length > 50 ? props.title.slice(0, 50) + '...' : props.title}"?`}
         confirmText="Restore"
     />
- );
- 
+);

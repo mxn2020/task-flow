@@ -1,13 +1,16 @@
+// app/auth/signin/page.tsx
+
 'use client';
 import { useState } from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { AppError } from '@/lib/errors/types';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
@@ -16,34 +19,43 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const validateForm = () => {
+    if (!email.trim()) throw new AppError('Email is required', 400, 'VALIDATION_ERROR');
+    if (!password.trim()) throw new AppError('Password is required', 400, 'VALIDATION_ERROR');
+    if (!email.includes('@')) throw new AppError('Invalid email format', 400, 'VALIDATION_ERROR');
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      setLoading(true);
-      setError('');
+      validateForm();
       
-      if (!email || !password) {
-        setError('Please enter both email and password');
-        return;
-      }
-  
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false
       });
-  
+
       if (result?.error) {
-        setError('Invalid email or password');
-        return;
+        throw new AppError(
+          result.error === 'CredentialsSignin' ? 'Invalid email or password' : result.error,
+          401,
+          'AUTH_ERROR'
+        );
       }
-  
-      if (result?.ok) {
-        router.push('/dashboard');
+
+      if (!result?.ok) {
+        throw new AppError('Authentication failed', 500, 'AUTH_ERROR');
       }
+
+      router.push('/dashboard');
+      router.refresh();
     } catch (err) {
       console.error('Sign in error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(err instanceof AppError ? err.message : 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -55,7 +67,7 @@ export default function SignIn() {
         href="/"
         className="mb-8 text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
       >
-        TaskFlow
+        NextStack Pro
       </Link>
       
       <motion.div
@@ -76,33 +88,46 @@ export default function SignIn() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-destructive/10 text-destructive p-3 rounded-md mb-4"
+                className="flex items-center gap-2 bg-destructive/10 text-destructive p-3 rounded-md mb-4"
               >
-                {error}
+                <AlertCircle className="h-4 w-4" />
+                <span>{error}</span>
               </motion.div>
             )}
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
+                <label htmlFor="email" className="text-sm font-medium">Email</label>
                 <Input
+                  id="email"
                   type="email"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
+                  aria-invalid={!!error}
+                  autoComplete="email"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Password</label>
+                <label htmlFor="password" className="text-sm font-medium">Password</label>
                 <Input
+                  id="password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
+                  aria-invalid={!!error}
+                  autoComplete="current-password"
                 />
               </div>
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                size="lg" 
+                disabled={loading}
+                aria-busy={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
