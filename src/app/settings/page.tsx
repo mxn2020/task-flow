@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { LogOut, Moon, Sun, User } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
+import ScopeVisibilitySettings from '@/components/task/ScopeVisibilitySettings';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -66,6 +67,8 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
+        <ScopeVisibilitySettings />
+
         <Card>
           <CardHeader>
             <CardTitle>Danger Zone</CardTitle>
@@ -118,6 +121,8 @@ export default function SettingsPage() {
                 </Button>
               </div>
             </div>
+
+            <ScopeVisibilitySettings />
 
             <div className="pt-4 border-t">
               <h3 className="text-lg font-medium text-destructive mb-2">Danger Zone</h3>
