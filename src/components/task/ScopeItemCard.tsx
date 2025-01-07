@@ -25,7 +25,7 @@ import {
   ArchiveConfirmationDialog, 
   RestoreConfirmationDialog, 
   DeleteConfirmationDialog 
-} from './ConfirmationDialog';
+} from '@/components/app/ConfirmationDialog';
 import { useScope } from '@/contexts/ScopeContext';
 
 interface ScopeItemCardProps<T extends BaseItem> {

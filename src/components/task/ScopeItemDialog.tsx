@@ -22,7 +22,7 @@ import { DateTimePicker } from '../ui/date-time-picker';
 import { Switch } from '../ui/switch';
 import { useScope } from '@/contexts/ScopeContext';
 import { BaseScopeFormItem, ScopeItem } from '@/types/scopes_2';
-import { ResponsiveDialog } from './ResponsiveDialog';
+import { ResponsiveDialog } from '@/components/app/ResponsiveDialog';
 
 
 interface ScopeItemDialogProps<T extends BaseItem> {

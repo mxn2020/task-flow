@@ -4,7 +4,7 @@
 
 import { useEffect } from 'react';
 import { useTemplates } from '@/contexts/TemplateContext';
-import { TemplateSystemContainer } from '@/components/app/TemplateSystemContainer';
+import { TemplateSystemContainer } from '@/components/task/TemplateSystemContainer';
 
 export default function TemplatePage() {
   const {

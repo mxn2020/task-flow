@@ -1,5 +1,5 @@
-const DB_NAME = 'TaskFlowDB';
-const STORE_NAME = 'todos';
+const DB_NAME = 'NextStackDB';
+const STORE_NAME = 'appData';
 const DB_VERSION = 1;
 
 export async function initDB() {
@@ -18,16 +18,16 @@ export async function initDB() {
   });
 }
 
-export async function saveTodosOffline(todos: any[]) {
+export async function saveDataOffline(data: any[]) {
   const db = await initDB();
   const tx = (db as IDBDatabase).transaction(STORE_NAME, 'readwrite');
   const store = tx.objectStore(STORE_NAME);
   
-  await Promise.all(todos.map(todo => store.put(todo)));
+  await Promise.all(data.map(item => store.put(item)));
   return new Promise(resolve => tx.oncomplete = resolve);
 }
 
-export async function getOfflineTodos() {
+export async function getOfflineData() {
   const db = await initDB();
   const tx = (db as IDBDatabase).transaction(STORE_NAME, 'readonly');
   const store = tx.objectStore(STORE_NAME);
