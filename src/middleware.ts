@@ -12,9 +12,15 @@ export const config = {
     matcher: [
         '/dashboard/:path*',
         '/settings',
+        '/todos',
+        '/brainstorms',
+        '/notes',
+        '/templates',
         '/profile',
+        '/groups',
         '/organization',
         '/api/protected/:path*',
         '/admin/:path*',
+        '/scopes/:scopeSlug*'
     ],
 };
