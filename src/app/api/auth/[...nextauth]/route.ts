@@ -3,8 +3,15 @@
 import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { handleError } from "@/lib/errors/errorHandler";
+import { NextRequest } from "next/server";
 
-async function handler(req: Request, context: { params: { nextauth: string[] } }) {
+async function handler(
+  req: NextRequest,
+  context: { params: Promise<{ nextauth: string[] }> }
+) {
+
+  const { nextauth } = await context.params;
+
   try {
     const nextAuthHandler = NextAuth(authOptions);
     return nextAuthHandler(req, context);

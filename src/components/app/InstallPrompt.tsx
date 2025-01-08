@@ -153,8 +153,8 @@ export const InstallPrompt = () => {
               <p>To install this app on your iOS device:</p>
               <ol className="list-decimal list-inside space-y-2">
                 <li>Tap the Share button <span className="inline-block px-2">⎙</span></li>
-                <li>Scroll and tap "Add to Home Screen"</li>
-                <li>Tap "Add" to confirm</li>
+                <li>Scroll and tap &quot;Add to Home Screen&quot;</li>
+                <li>Tap &quot;Add&quot; to confirm</li>
               </ol>
             </div>
           ) : (

@@ -41,3 +41,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# CoderVerse
+coder-verse*
+.coder-verse*
+coder-verse/*
+coder-verse.*

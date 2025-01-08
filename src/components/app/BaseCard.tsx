@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { Archive, ChevronDown, ChevronRight, Pen, Plus, Trash2, RotateCcw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ColorDisplay } from '@/components/app/ColorDisplay';
+import { ColorDisplay } from '@/components/task/ColorDisplay';
 import { BaseItem, BaseTemplateItem } from '@/types/ui';
 import { ObjectType, SystemScopeType } from '@/types';
 

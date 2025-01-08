@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FolderKanban, Settings, AlertOctagon } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SystemScopesNav } from '../task/SystemScopesNav';
 
 interface NavLink {
   href: string;
@@ -18,6 +19,11 @@ export function MobileNav() {
   const [error, setError] = React.useState<string | null>(null);
 
   const navLinks: NavLink[] = [
+    {
+      href: '/organization',
+      icon: <FolderKanban className="h-6 w-6" />,
+      label: 'Organization'
+    },
     {
       href: '/settings',
       icon: <Settings className="h-6 w-6" />,
@@ -46,8 +52,10 @@ export function MobileNav() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       <div className="flex justify-around items-center">
+        <SystemScopesNav isMobile />
+
         {navLinks.map(({ href, icon, label }) => (
           <Link
             key={href}
