@@ -1,4 +1,5 @@
 // lib/adminUtils.ts
+
 import { supabase } from '@/lib/supabaseClient';
 
 export async function isSuperAdmin(userId: string) {

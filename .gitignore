@@ -47,3 +47,15 @@ coder-verse*
 .coder-verse*
 coder-verse/*
 coder-verse.*
+_coder_verse_*
+_coder_verse_/*
+_coder_verse_.*
+
+_coder_verse_*
+_coder_verse_/*
+_coder_verse_.*
+# CoderVerse
+coder-verse*
+.coder-verse*
+coder-verse/*
+coder-verse.*
