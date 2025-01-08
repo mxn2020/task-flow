@@ -14,6 +14,7 @@ import { LogOut, Moon, Sun, User, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { AppError } from '@/lib/errors/types';
+import APIKeys from './api-keys/page';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -88,6 +89,15 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
+            <CardTitle>Display Settings</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <APIKeys />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Danger Zone</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -131,12 +141,21 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Navigation</h3>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start" asChild>
+                
+              <Button variant="outline" className="w-full justify-start" asChild>
                   <Link href="/profile">
                     <User className="mr-2 h-4 w-4" aria-hidden="true" />
                     Profile
                   </Link>
                 </Button>
+
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href="/settings/api-keys">
+                    <User className="mr-2 h-4 w-4" aria-hidden="true" />
+                    API Keys
+                  </Link>
+                </Button>
+
                 <Button 
                   variant="outline" 
                   className="w-full justify-start" 
@@ -145,6 +164,7 @@ export default function SettingsPage() {
                   <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
                   Log out
                 </Button>
+                
               </div>
             </div>
 
