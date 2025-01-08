@@ -137,7 +137,7 @@ export const InstallPrompt = () => {
         </button>
 
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Install NextStack Pro
+          Install TaskFlow
         </h2>
 
         {state.error && (
@@ -158,7 +158,7 @@ export const InstallPrompt = () => {
               </ol>
             </div>
           ) : (
-            <p>Install NextStack Pro for quick and easy access to your tasks and brainstorms.</p>
+            <p>Install TaskFlow for quick and easy access to your tasks and brainstorms.</p>
           )}
         </div>
 

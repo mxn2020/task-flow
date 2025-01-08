@@ -110,7 +110,7 @@ const DesktopLayout = ({ children }: { children: React.ReactNode }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              NextStack Pro
+              TaskFlow
             </motion.h1>
           </div>
 
@@ -217,7 +217,7 @@ const MobileLayout = ({ children }: { children: React.ReactNode }) => {
             <MobileMenu onClose={() => setIsOpen(false)} />
           </SheetContent>
         </Sheet>
-        <h1 className="text-xl font-bold">NextStack Pro</h1>
+        <h1 className="text-xl font-bold">TaskFlow</h1>
 
         {/* Notification Center */}
         <NotificationCenter />

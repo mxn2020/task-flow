@@ -1,5 +1,5 @@
 {
-  "name": "NextStack Pro",
+  "name": "TaskFlow",
   "short_name": "NextStack",
   "start_url": "/",
   "display": "standalone",
@@ -27,14 +27,14 @@
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "NextStack Pro desktop view"
+      "label": "TaskFlow desktop view"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "1170x2532",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "NextStack Pro mobile view"
+      "label": "TaskFlow mobile view"
     }
   ]
 }

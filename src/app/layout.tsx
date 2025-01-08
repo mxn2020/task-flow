@@ -15,13 +15,13 @@ import { ErrorBoundary } from '@/components/app/ErrorBoundary';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'NextStack Pro',
+  title: 'TaskFlow',
   description: 'A modern, full-stack Next.js template with authentication, database, caching, and PWA support',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "NextStack Pro",
+    title: "TaskFlow",
   },
   icons: {
     apple: [

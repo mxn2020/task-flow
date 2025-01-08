@@ -114,7 +114,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <span className="text-xl font-bold">NextStack Pro</span>
+              <span className="text-xl font-bold">TaskFlow</span>
             </div>
             <div className="flex items-center space-x-4">
               <Button
@@ -203,7 +203,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={animations.item} className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-8">
-              Ship Faster with <span className="text-primary">NextStack Pro</span>
+              Ship Faster with <span className="text-primary">TaskFlow</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-12">
               Production-ready Next.js template with enterprise features built-in
@@ -215,7 +215,7 @@ export default function LandingPage() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="https://github.com/yourusername/nextstack-pro">
+                <Link href="https://github.com/yourusername/taskflow">
                   View on GitHub
                 </Link>
               </Button>
@@ -275,7 +275,7 @@ export default function LandingPage() {
             <Card className="p-6">
               <pre className="bg-secondary/50 p-4 rounded-lg overflow-x-auto">
                 <code>
-                  npx create-next-app@latest my-app --use-template nextstack-pro
+                  npx create-next-app@latest my-app --use-template taskflow
                 </code>
               </pre>
               <div className="mt-6 space-y-4 text-muted-foreground">

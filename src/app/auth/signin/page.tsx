@@ -67,7 +67,7 @@ export default function SignIn() {
         href="/"
         className="mb-8 text-3xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
       >
-        NextStack Pro
+        TaskFlow
       </Link>
       
       <motion.div
