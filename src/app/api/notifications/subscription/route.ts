@@ -1,8 +1,9 @@
 // app/api/notifications/subscription/route.ts
-import { authOptions } from '@/lib/auth';
+
+import { withAuth } from '@/lib/api-middleware';
 import { supabase } from '@/lib/supabaseClient';
-import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { AppError } from '@/lib/errors/types';
 import webpush from 'web-push';
 
 const vapidDetails = {
@@ -17,30 +18,20 @@ webpush.setVapidDetails(
   vapidDetails.privateKey
 );
 
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+export const POST = withAuth(async (req: NextRequest, context: any, session: any) => {
+  const subscription = await req.json();
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .upsert({
+      user_id: session.user.id,
+      endpoint: subscription.endpoint,
+      auth: subscription.keys.auth,
+      p256dh: subscription.keys.p256dh,
+      updated_at: new Date().toISOString()
+    });
 
-  try {
-    const subscription = await req.json();
-    const { error } = await supabase
-      .from('push_subscriptions')
-      .upsert({
-        user_id: session.user.id,
-        endpoint: subscription.endpoint,
-        auth: subscription.keys.auth,
-        p256dh: subscription.keys.p256dh,
-        updated_at: new Date().toISOString()
-      });
+  if (error) throw new AppError('Failed to save subscription', 500, 'DATABASE_ERROR');
 
-    if (error) throw error;
-
-    return new NextResponse('Subscription saved', { status: 200 });
-  } catch (error) {
-    console.error('Error saving push subscription:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
-}
+  return NextResponse.json({ message: 'Subscription saved' });
+});
 

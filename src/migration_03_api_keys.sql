@@ -31,19 +31,6 @@ CREATE INDEX idx_api_keys_prefix ON api_keys(prefix);
 CREATE INDEX idx_api_key_usage_api_key_id ON api_key_usage(api_key_id);
 CREATE INDEX idx_api_key_usage_timestamp ON api_key_usage(timestamp);
 
--- Add RLS policies
-ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
-ALTER TABLE api_key_usage ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY api_keys_user_policy ON api_keys
-  FOR ALL USING (user_id = auth.uid());
-
-CREATE POLICY api_key_usage_user_policy ON api_key_usage
-  FOR ALL USING (api_key_id IN (
-    SELECT id FROM api_keys WHERE user_id = auth.uid()
-  ));
-
-
 -- API key usage
 ALTER TABLE api_key_usage ADD COLUMN response_time INTEGER;
 ALTER TABLE api_key_usage ADD COLUMN request_body_size INTEGER;

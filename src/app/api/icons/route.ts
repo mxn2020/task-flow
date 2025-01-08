@@ -1,6 +1,7 @@
 // app/api/icons/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api-middleware';
 import * as LucideIcons from 'lucide-react';
 import { IconName } from '@/types/icons';
 import { cache } from 'react';
@@ -26,61 +27,45 @@ const searchIcons = cache((searchStr: string): IconName[] => {
   }
 });
 
-export async function GET(request: NextRequest) {
-  try {
-    const searchParams = request.nextUrl.searchParams;
-    const search = searchParams.get('search') || '';
-    const page = parseInt(searchParams.get('page') || '0', 10);
-    const limit = parseInt(searchParams.get('limit') || '20', 10);
+export const GET = withAuth(async (req: NextRequest, context: any, session: any) => {
+  const searchParams = req.nextUrl.searchParams;
+  const search = searchParams.get('search') || '';
+  const page = parseInt(searchParams.get('page') || '0', 10);
+  const limit = parseInt(searchParams.get('limit') || '20', 10);
 
-    if (isNaN(page) || page < 0) {
-      throw new AppError('Invalid page parameter', 400, 'INVALID_PAGE');
-    }
-
-    if (isNaN(limit) || limit < 1 || limit > 100) {
-      throw new AppError('Invalid limit parameter', 400, 'INVALID_LIMIT');
-    }
-
-    const filtered = searchIcons(search);
-    const total = filtered.length;
-    const startIndex = page * limit;
-    const endIndex = Math.min(startIndex + limit, total);
-
-    if (startIndex >= total) {
-      throw new AppError('Page out of range', 400, 'PAGE_OUT_OF_RANGE');
-    }
-
-    const hasNextPage = endIndex < total;
-    const icons = filtered.slice(startIndex, endIndex);
-
-    return NextResponse.json({ 
-      icons,
-      total,
-      hasNextPage,
-      nextPage: hasNextPage ? page + 1 : null,
-      pageInfo: {
-        current: page,
-        size: limit,
-        total: Math.ceil(total / limit)
-      }
-    }, {
-      headers: {
-        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400'
-      }
-    });
-  } catch (error) {
-    console.error('Icons API error:', error);
-    
-    if (error instanceof AppError) {
-      return NextResponse.json(
-        { error: error.message, code: error.code },
-        { status: error.statusCode }
-      );
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error', code: 'INTERNAL_ERROR' },
-      { status: 500 }
-    );
+  if (isNaN(page) || page < 0) {
+    throw new AppError('Invalid page parameter', 400, 'INVALID_PAGE');
   }
-}
+
+  if (isNaN(limit) || limit < 1 || limit > 100) {
+    throw new AppError('Invalid limit parameter', 400, 'INVALID_LIMIT');
+  }
+
+  const filtered = searchIcons(search);
+  const total = filtered.length;
+  const startIndex = page * limit;
+  const endIndex = Math.min(startIndex + limit, total);
+
+  if (startIndex >= total) {
+    throw new AppError('Page out of range', 400, 'PAGE_OUT_OF_RANGE');
+  }
+
+  const hasNextPage = endIndex < total;
+  const icons = filtered.slice(startIndex, endIndex);
+
+  return NextResponse.json({ 
+    icons,
+    total,
+    hasNextPage,
+    nextPage: hasNextPage ? page + 1 : null,
+    pageInfo: {
+      current: page,
+      size: limit,
+      total: Math.ceil(total / limit)
+    }
+  }, {
+    headers: {
+      'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400'
+    }
+  });
+});

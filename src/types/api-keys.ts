@@ -14,13 +14,15 @@ export interface APIKey {
   expiresAt: string | null;
   lastUsedAt: string | null;
   createdAt: string;
+  revokedAt: string | null;
 }
 
 export interface CreateAPIKeyRequest {
   name: string;
-  expiresInDays?: number;
   permissions: APIKeyPermissions;
   rateLimit: number;
+  expiresInDays: number | null;
+  noExpiration?: boolean;
 }
 
 export interface CreateAPIKeyResponse {
@@ -67,4 +69,9 @@ export interface APIKeyUsageDB {
   response_time?: number;
   request_body_size?: number;
   response_body_size?: number;
+}
+
+export interface NewKeyState extends CreateAPIKeyRequest {
+  noExpiration: boolean;
+  expiresInDays: number;
 }

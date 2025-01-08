@@ -48,10 +48,16 @@ export const authOptions: NextAuthOptions = {
             throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
           }
 
+          if (profile.is_suspended) {
+            throw new AppError('Account suspended', 403, 'ACCOUNT_SUSPENDED');
+          }
+          
           return {
             id: profile.id,
             name: profile.name,
             email: profile.email,
+            role: profile.role || 'user',
+            is_suspended: profile.is_suspended
           };
         } catch (error) {
           console.error('Authorization error:', error);
@@ -80,8 +86,10 @@ export const authOptions: NextAuthOptions = {
       try {
         if (user) {
           token.id = user.id;
+          token.role = user.role;
           token.name = user.name;
           token.email = user.email;
+          token.is_suspended = user.is_suspended;
         }
         return token;
       } catch (error) {
@@ -95,6 +103,8 @@ export const authOptions: NextAuthOptions = {
           session.user.id = token.id as string;
           session.user.name = token.name as string;
           session.user.email = token.email as string;
+          session.user.role = token.role as string;
+          session.user.is_suspended = token.is_suspended as boolean;
         }
         return session;
       } catch (error) {

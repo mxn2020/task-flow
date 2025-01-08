@@ -2,7 +2,7 @@
 
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
-
+ 
 export default withAuth(
   async function middleware(req) {
     try {
@@ -41,7 +41,11 @@ export default withAuth(
         return NextResponse.redirect(new URL('/auth/signin', req.url));
       }
 
-      if (req.nextUrl.pathname.startsWith('/admin') && token.role !== 'admin') {
+      if (token.is_suspended) {
+        return NextResponse.redirect(new URL('/suspended', req.url));
+      }
+
+      if (req.nextUrl.pathname.startsWith('/admin') && !['admin', 'superadmin'].includes(token.role)) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
 

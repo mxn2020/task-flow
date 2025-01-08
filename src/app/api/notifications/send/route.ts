@@ -1,12 +1,11 @@
 // app/api/notifications/send/route.ts
 
-import { authOptions } from "@/lib/auth";
+import { withAuth } from "@/lib/api-middleware";
 import { supabase } from "@/lib/supabaseClient";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { AppError } from '@/lib/errors/types';
 import webpush from 'web-push';
 
-// Initialize web-push
 webpush.setVapidDetails(
   'mailto:your-email@example.com',
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
@@ -20,57 +19,48 @@ interface NotificationPayload {
   soundEnabled?: boolean;
 }
 
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
+export const POST = withAuth(async (req: NextRequest) => {
+  const payload: NotificationPayload = await req.json();
+  const { title, message, userId, soundEnabled = false } = payload;
 
-  try {
-    const payload: NotificationPayload = await req.json();
-    const { title, message, userId, soundEnabled = false } = payload;
+  const { data: subscriptions } = await supabase
+    .from('push_subscriptions')
+    .select('*')
+    .eq('user_id', userId);
 
-    const { data: subscriptions } = await supabase
-      .from('push_subscriptions')
-      .select('*')
-      .eq('user_id', userId);
+  if (subscriptions) {
+    const notifications = subscriptions.map(sub => {
+      const pushSubscription = {
+        endpoint: sub.endpoint,
+        keys: {
+          auth: sub.auth,
+          p256dh: sub.p256dh
+        }
+      };
 
-    if (subscriptions) {
-      const notifications = subscriptions.map(sub => {
-        const pushSubscription = {
-          endpoint: sub.endpoint,
-          keys: {
-            auth: sub.auth,
-            p256dh: sub.p256dh
-          }
-        };
-
-        return webpush.sendNotification(
-          pushSubscription,
-          JSON.stringify({
-            title,
-            message,
-            soundEnabled
-          })
-        );
-      });
-
-      await Promise.allSettled(notifications);
-    }
-
-    await supabase.from('notification_history').insert({
-      user_id: userId,
-      title,
-      message,
-      created_at: new Date().toISOString()
+      return webpush.sendNotification(
+        pushSubscription,
+        JSON.stringify({
+          title,
+          message,
+          soundEnabled
+        })
+      );
     });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error sending notification:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to send notification' },
-      { status: 500 }
-    );
+    await Promise.allSettled(notifications);
   }
-}
+
+  const { error: insertError } = await supabase.from('notification_history').insert({
+    user_id: userId,
+    title,
+    message,
+    created_at: new Date().toISOString()
+  });
+
+  if (insertError) {
+    throw new AppError('Failed to save notification', 500, 'DATABASE_ERROR');
+  }
+
+  return NextResponse.json({ success: true });
+});
