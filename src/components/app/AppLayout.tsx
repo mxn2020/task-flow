@@ -30,10 +30,63 @@ import { Separator } from '@/components/ui/separator';
 import { MobileNav } from './MobileNav';
 import { NotificationCenter } from './NotificationCenter';
 
+import { Scope } from '@/types';
+import { SystemScopesNav } from '../task/SystemScopesNav';
+import { ScopeDialog } from '../task/ScopeDialog';
+import { ScopeList } from '../task/ScopeList';
+
 const DesktopLayout = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
+
+  const [userScopes, setUserScopes] = useState<Scope[]>([]);
+  const [scopeDialogOpen, setScopeDialogOpen] = useState(false);
+  const [selectedScope, setSelectedScope] = useState<Scope | null>(null);
+  const { registerRefreshHandler } = useMenu();
+
+  useEffect(() => {
+    const cleanup = registerRefreshHandler(fetchUserScopes);
+    if (session?.user?.id) {
+      fetchUserScopes();
+    }
+    return cleanup;
+  }, [session?.user?.id]);
+
+  const fetchUserScopes = async () => {
+    const { data } = await supabase
+      .from('scopes')
+      .select('*')
+      .eq('user_id', session?.user?.id)
+      .eq('is_system', false)
+      .eq('show_in_sidebar', true)
+      .limit(5)
+      .order('created_at', { ascending: false });
+
+    setUserScopes(data ? toCamelCase(data) : []);
+  };
+
+  const handleScopeSave = async (scopeData: any) => {
+    const data = toSnakeCase(scopeData);
+    const operation = selectedScope
+      ? supabase.from('scopes').update(data).eq('id', selectedScope.id)
+      : supabase.from('scopes').insert([{ ...data, user_id: session?.user?.id, is_system: false }]);
+
+    const { error } = await operation;
+    if (!error) {
+      await fetchUserScopes();
+      setScopeDialogOpen(false);
+      setSelectedScope(null);
+    }
+  };
+
+  const handleScopeVisibility = async (scopeId: string) => {
+    await supabase
+      .from('scopes')
+      .update({ show_in_sidebar: false })
+      .eq('id', scopeId);
+    fetchUserScopes();
+  };
 
   if (status === "loading") return null;
   if (!session) {
@@ -59,15 +112,63 @@ const DesktopLayout = ({ children }: { children: React.ReactNode }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              NextStack Pro
+              TaskFlow
             </motion.h1>
           </div>
 
           <nav className="flex-1 px-4">
+            <SystemScopesNav />
 
             <Separator className="my-4" />
 
+            <Link
+              href="/templates"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/templates' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+                }`}
+            >
+              <Amphora className="h-5 w-5" />
+              Templates
+            </Link>
+
+            <Link
+              href="/organization"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/organization' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+                }`}
+            >
+              <FolderKanban className="h-5 w-5" />
+              Organization
+            </Link>
+
+            <Separator className="my-4" />
+
+            {userScopes.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Button
+                  variant="outline"
+                  className="w-full border-dashed"
+                  onClick={() => setScopeDialogOpen(true)}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Scope
+                </Button>
+              </motion.div>
+            ) : (
+              <ScopeList
+                userScopes={userScopes}
+                onEdit={(scope) => {
+                  setSelectedScope(scope);
+                  setScopeDialogOpen(true);
+                }}
+                onVisibilityToggle={handleScopeVisibility}
+                pathname={pathname}
+              />
+            )}
           </nav>
+
         </div>
       </motion.aside>
 
@@ -83,6 +184,16 @@ const DesktopLayout = ({ children }: { children: React.ReactNode }) => {
           </motion.div>
         </main>
       </div>
+
+      <ScopeDialog
+        scope={selectedScope}
+        isOpen={scopeDialogOpen}
+        onClose={() => {
+          setScopeDialogOpen(false);
+          setSelectedScope(null);
+        }}
+        onSave={handleScopeSave}
+      />
 
     </motion.div>
   );
@@ -149,7 +260,7 @@ const MobileLayout = ({ children }: { children: React.ReactNode }) => {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -245,6 +356,30 @@ const MobileMenu = ({ onClose }: { onClose: () => void }) => {
   const { data: session } = useSession();
   const pathname = usePathname();
 
+  const [userScopes, setUserScopes] = useState<Scope[]>([]);
+  const { registerRefreshHandler } = useMenu();
+
+  useEffect(() => {
+    const cleanup = registerRefreshHandler(fetchUserScopes);
+    if (session?.user?.id) {
+      fetchUserScopes();
+    }
+    return cleanup;
+  }, [session?.user?.id]);
+
+  const fetchUserScopes = async () => {
+    const { data } = await supabase
+      .from('scopes')
+      .select('*')
+      .eq('user_id', session?.user?.id)
+      .eq('is_system', false)
+      .eq('show_in_sidebar', true)
+      .limit(5)
+      .order('created_at', { ascending: false });
+
+    setUserScopes(data ? toCamelCase(data) : []);
+  };
+
   if (!session) return null;
 
   return (
@@ -268,6 +403,47 @@ const MobileMenu = ({ onClose }: { onClose: () => void }) => {
           <Home className="h-5 w-5" />
           Dashboard
         </Link>
+
+        <Separator className="my-4" />
+
+        <SystemScopesNav onClose={onClose} />
+
+        <Separator className="my-4" />
+
+        <Link
+          href="/templates"
+          className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/templates' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+            }`}
+          onClick={onClose}
+        >
+          <Amphora className="h-5 w-5" />
+          Templates
+        </Link>
+
+        <Link
+          href="/organization"
+          className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/organization' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+            }`}
+          onClick={onClose}
+        >
+          <FolderKanban className="h-5 w-5" />
+          Organization
+        </Link>
+
+        <Separator className="my-4" />
+
+        {userScopes.map((scope) => (
+          <Link
+            key={scope.id}
+            href={`/scopes/${scope.slug}`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === `/scopes/${scope.slug}` ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+              }`}
+            onClick={onClose}
+          >
+            <DynamicIcon name={scope.icon || ''} className="h-5 w-5" />
+            {scope.name}
+          </Link>
+        ))}
 
       </nav>
     </div>
