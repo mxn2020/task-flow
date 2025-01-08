@@ -35,6 +35,23 @@ git cherry-pick <commit-hash>   # For specific updates
 git checkout template-updates -- path/to/file  # For specific files
 ```
 
+## Rinse and Repeat
+
+Each time the original template repository releases updates:
+
+```bash
+# Create branches for managing updates
+git checkout template-updates
+git fetch template
+git merge template/main
+
+# Review changes on template-updates.
+git checkout custom-features (or main)
+git merge template-updates (or cherry-pick specific commits)
+```
+
+This way, your custom project always stays up to date with the latest features and fixes from the template, while preserving all of your own code.
+
 ## Setup
 1. Clone repository 
 2. Copy .env.example to .env
