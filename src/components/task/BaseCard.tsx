@@ -17,6 +17,7 @@ interface BaseCardProps<T extends BaseItem | BaseTemplateItem> {
   scopeType: SystemScopeType | string;
   hasChildren: boolean;
   isExpanded: boolean;
+  allowNesting: boolean;
   colorDisplay: 'none' | 'vertical' | 'background';
   onToggleExpand: () => void;
   onAddChild: () => void;
@@ -35,6 +36,7 @@ export function BaseCard<T extends BaseItem | BaseTemplateItem>({
   scopeType,
   hasChildren,
   isExpanded,
+  allowNesting,
   colorDisplay,
   onToggleExpand,
   onAddChild,
@@ -102,7 +104,7 @@ export function BaseCard<T extends BaseItem | BaseTemplateItem>({
                   >
                     <Pen size={20} className={'ml-[6.5px]'} />
                   </Button>
-                  {['todo', 'brainstorm'].includes(scopeType) && (
+                  {allowNesting && (
                     <Button
                       variant="ghost"
                       size="icon"

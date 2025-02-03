@@ -52,6 +52,7 @@ export function useScopeItems() {
 
   return {
     scopeItems,
+    allowNesting: scope.scope.allowNesting,
     selectedColor: scope.selectedColor,
     setSelectedColor: scope.setSelectedColor,
     createFromTemplate,

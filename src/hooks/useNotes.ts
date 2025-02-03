@@ -53,6 +53,7 @@ export function useNotes() {
 
   return {
     notes,
+    allowNesting: scope.scope.allowNesting,
     selectedColor: scope.selectedColor,
     setSelectedColor: scope.setSelectedColor,
     createFromTemplate,

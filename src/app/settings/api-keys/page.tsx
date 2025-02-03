@@ -1,4 +1,7 @@
 // app/settings/api-keys/page.tsx
+
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -250,7 +253,7 @@ export default function APIKeys() {
             </DialogHeader>
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Make sure to copy your API key now. You won't be able to see it again!
+                Make sure to copy your API key now. You won&apos;t be able to see it again!
               </p>
               <div className="flex items-center space-x-2">
                 <Input value={newKey} readOnly />

@@ -11,6 +11,7 @@ interface ScopePageClientProps {
 
 export function ScopePageClient({ scopeSlug }: ScopePageClientProps) {
   const {
+    allowNesting,
     scopeItems,
     groups,
     types,
@@ -36,6 +37,7 @@ export function ScopePageClient({ scopeSlug }: ScopePageClientProps) {
   return (
     <ScopeItemSystemContainer
       scopeType={scopeSlug}
+      allowNesting={allowNesting}
       baseProps={{
         items: scopeItems,
         groups,

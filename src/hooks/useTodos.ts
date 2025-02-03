@@ -53,6 +53,7 @@ export function useTodos() {
 
   return {
     todos,
+    allowNesting: scope.scope.allowNesting,
     selectedColor: scope.selectedColor,
     setSelectedColor: scope.setSelectedColor,
     createFromTemplate,

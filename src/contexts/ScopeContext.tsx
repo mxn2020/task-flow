@@ -105,11 +105,12 @@ export function ScopeProvider({
         supabase.from('groups').select('*').eq('user_id', userId)
       ]);
 
-      if (scopeRes.data) setScope(scopeRes.data);
-      if (typesRes.data) setTypes(typesRes.data);
-      if (categoriesRes.data) setCategories(categoriesRes.data);
-      if (labelsRes.data) setLabels(labelsRes.data);
-      if (groupsRes.data) setGroups(groupsRes.data);
+      if (scopeRes.data) setScope(toCamelCase(scopeRes.data));
+      if (typesRes.data) setTypes(toCamelCase(typesRes.data));
+      if (categoriesRes.data) setCategories(toCamelCase(categoriesRes.data));
+      if (labelsRes.data) setLabels(toCamelCase(labelsRes.data));
+      if (groupsRes.data) setGroups(toCamelCase(groupsRes.data));
+
     } catch (err) {
       setError(err as Error);
     } finally {

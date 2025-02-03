@@ -20,11 +20,13 @@ import { ScopeItem, Dependency, BaseScopeFormItem } from '@/types/scopes_2';
 
 interface ScopeItemSystemContainerProps<T extends BaseItem> {
   scopeType: SystemScopeType | string;
+  allowNesting: boolean;
   baseProps: BaseProps<T>;
 }
 
 export function ScopeItemSystemContainer<T extends BaseItem>({
   scopeType,
+  allowNesting,
   baseProps,
 }: ScopeItemSystemContainerProps<T>) {
   const [isHovering, setIsHovering] = useState(false);
@@ -270,6 +272,7 @@ export function ScopeItemSystemContainer<T extends BaseItem>({
               categories={categories}
               hasChildren={hasChildren}
               isExpanded={isExpanded}
+              allowNesting={allowNesting}
               colorDisplay={baseProps.viewOptions.colorDisplay}
               onToggleExpand={() => {
                 const newExpanded = new Set(expandedItems);

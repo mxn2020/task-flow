@@ -7,6 +7,7 @@ import { useNotes } from '@/hooks/useNotes';
 
 export default function NotePage() {
   const {
+    allowNesting,
     notes,
     groups,
     types,
@@ -32,6 +33,7 @@ export default function NotePage() {
   return (
     <ScopeItemSystemContainer
       scopeType="note"
+      allowNesting={allowNesting}
       baseProps={{
         items: notes,
         groups,

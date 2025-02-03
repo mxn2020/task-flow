@@ -27,7 +27,15 @@ async function fetchInitialData(userId: string, scopeSlug: string) {
       .from('todos')
       .select(`
         *,
-        scope:scopes!todos_scope_id_fkey!inner (id, name, color, icon, slug),
+        scope:scopes!todos_scope_id_fkey!inner (
+          id,
+          name,
+          color,
+          icon,
+          slug,
+          is_system,
+          allow_nesting
+        ),
         type:types!left(
           id, 
           name,

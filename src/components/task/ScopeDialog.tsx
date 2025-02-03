@@ -61,6 +61,7 @@ export function ScopeDialog({
   const [showInSidebar, setShowInSidebar] = useState(true);
   const [fields, setFields] = useState<Field[]>([]);
   const [error, setError] = useState('');
+  const [allowNesting, setAllowNesting] = useState(false);
 
   const resetForm = useCallback(() => {
     if (scope) {
@@ -68,6 +69,7 @@ export function ScopeDialog({
       setSlug(scope.slug);
       setColor(scope.color || '#3498db');
       setIcon(scope.icon || '');
+      setAllowNesting(scope.allowNesting ?? false);
       setShowInSidebar(scope.showInSidebar ?? true);
       const fieldArray = Object.entries(scope.metadata.fields).map(([name, field], index) => ({
         id: crypto.randomUUID(),
@@ -83,6 +85,7 @@ export function ScopeDialog({
       setSlug('');
       setColor('#3498db');
       setIcon('');
+      setAllowNesting(false);
       setShowInSidebar(true);
       setFields([]);
     }
@@ -228,6 +231,7 @@ export function ScopeDialog({
         color,
         icon,
         showInSidebar,
+        allowNesting,
         metadata
       });
 
@@ -274,13 +278,24 @@ export function ScopeDialog({
             </div>
           </div>
 
-          {/* Show in sidebar toggle */}
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={showInSidebar}
-              onCheckedChange={setShowInSidebar}
-            />
-            <Label>Show in Sidebar</Label>
+          <div className="flex items-center gap-6">
+            {/* Show in sidebar toggle */}
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={showInSidebar}
+                onCheckedChange={setShowInSidebar}
+              />
+              <Label>Show in Sidebar</Label>
+            </div>
+
+            {/* Allow nesting toggle */}
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={allowNesting}
+                onCheckedChange={setAllowNesting}
+              />
+              <Label>Allow Nesting</Label>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -302,74 +317,74 @@ export function ScopeDialog({
                       className="space-y-3"
                     >
                       {fields.map((field, index) => (
-                       <Draggable key={field.id} draggableId={field.id} index={index}>
-                       {(provided, snapshot) => (
-                         <Card
-                           ref={provided.innerRef}
-                           {...provided.draggableProps}
-                           {...provided.dragHandleProps}
-                           className={`p-4 ${snapshot.isDragging ? 'ring-2 ring-primary shadow-lg' : ''}`}
-                           style={{
-                             ...provided.draggableProps.style,
-                             left: 'auto !important',
-                             top: 'auto !important'
-                           }}
-                         >
-                                <div className="flex items-start gap-4">
+                        <Draggable key={field.id} draggableId={field.id} index={index}>
+                          {(provided, snapshot) => (
+                            <Card
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`p-4 ${snapshot.isDragging ? 'ring-2 ring-primary shadow-lg' : ''}`}
+                              style={{
+                                ...provided.draggableProps.style,
+                                left: 'auto !important',
+                                top: 'auto !important'
+                              }}
+                            >
+                              <div className="flex items-start gap-4">
 
-                                  <div className="mt-3 cursor-grab active:cursor-grabbing hover:cursor-grab">
-                                    <GripVertical className="h-5 w-5 text-muted-foreground" />
-                                  </div>
-
-                                  <div className="flex-grow space-y-4">
-                                    <div className="flex gap-4">
-                                      <div className="flex-grow">
-                                        <Input
-                                          value={field.name}
-                                          onChange={(e) => handleFieldChange(field.id, { name: e.target.value })}
-                                          placeholder="Field name"
-                                          className={field.error ? 'border-red-500' : ''}
-                                        />
-                                        {field.error && (
-                                          <p className="text-sm text-red-500 mt-1">{field.error}</p>
-                                        )}
-                                      </div>
-                                      <Select
-                                        value={field.type}
-                                        onValueChange={(value: FieldType) => handleFieldChange(field.id, { type: value })}
-                                      >
-                                        <SelectTrigger className="w-[140px]">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          {fieldTypes.map(type => (
-                                            <SelectItem key={type} value={type}>
-                                              {type}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                      <Switch
-                                        checked={field.required}
-                                        onCheckedChange={(checked) => handleFieldChange(field.id, { required: checked })}
-                                      />
-                                      <Label>Required</Label>
-                                    </div>
-                                  </div>
-
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleRemoveField(field.id)}
-                                    className="h-9 w-9"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
+                                <div className="mt-3 cursor-grab active:cursor-grabbing hover:cursor-grab">
+                                  <GripVertical className="h-5 w-5 text-muted-foreground" />
                                 </div>
-                              </Card>
+
+                                <div className="flex-grow space-y-4">
+                                  <div className="flex gap-4">
+                                    <div className="flex-grow">
+                                      <Input
+                                        value={field.name}
+                                        onChange={(e) => handleFieldChange(field.id, { name: e.target.value })}
+                                        placeholder="Field name"
+                                        className={field.error ? 'border-red-500' : ''}
+                                      />
+                                      {field.error && (
+                                        <p className="text-sm text-red-500 mt-1">{field.error}</p>
+                                      )}
+                                    </div>
+                                    <Select
+                                      value={field.type}
+                                      onValueChange={(value: FieldType) => handleFieldChange(field.id, { type: value })}
+                                    >
+                                      <SelectTrigger className="w-[140px]">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {fieldTypes.map(type => (
+                                          <SelectItem key={type} value={type}>
+                                            {type}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div className="flex items-center gap-2">
+                                    <Switch
+                                      checked={field.required}
+                                      onCheckedChange={(checked) => handleFieldChange(field.id, { required: checked })}
+                                    />
+                                    <Label>Required</Label>
+                                  </div>
+                                </div>
+
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveField(field.id)}
+                                  className="h-9 w-9"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </Card>
                           )}
                         </Draggable>
                       ))}

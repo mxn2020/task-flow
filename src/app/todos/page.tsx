@@ -7,6 +7,7 @@ import { useTodos } from '@/hooks/useTodos';
 
 export default function TodoPage() {
   const {
+    allowNesting,
     todos,
     groups,
     types,
@@ -27,11 +28,14 @@ export default function TodoPage() {
 
   useEffect(() => {
     refreshMetadata();
+    // fix: prevent unnecessary refreshMetadata calls
+    console.log('refreshMetadata');
   }, [refreshMetadata]);
 
   return (
     <ScopeItemSystemContainer
       scopeType="todo"
+      allowNesting={allowNesting}
       baseProps={{
         items: todos,
         groups,

@@ -7,6 +7,7 @@ import { useBrainstorms } from '@/hooks/useBrainstorms';
 
 export default function BrainstormPage() {
   const {
+    allowNesting,
     brainstorms,
     groups,
     types,
@@ -32,6 +33,7 @@ export default function BrainstormPage() {
   return (
     <ScopeItemSystemContainer
       scopeType="brainstorm"
+      allowNesting={allowNesting}
       baseProps={{
         items: brainstorms,
         groups,

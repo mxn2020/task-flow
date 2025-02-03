@@ -53,6 +53,7 @@ export function useBrainstorms() {
 
   return {
     brainstorms,
+    allowNesting: scope.scope.allowNesting,
     selectedColor: scope.selectedColor,
     setSelectedColor: scope.setSelectedColor,
     createFromTemplate,

@@ -38,6 +38,7 @@ interface ScopeItemCardProps<T extends BaseItem> {
   categories: Category[];
   hasChildren: boolean;
   isExpanded: boolean;
+  allowNesting: boolean;
   colorDisplay: 'none' | 'vertical' | 'background';
   onToggleExpand: () => void;
   onAddChild: () => void;
@@ -56,6 +57,7 @@ export function ScopeItemCard<T extends BaseItem>({
   categories,
   hasChildren,
   isExpanded,
+  allowNesting,
   colorDisplay,
   onToggleExpand,
   onAddChild,
@@ -252,6 +254,7 @@ export function ScopeItemCard<T extends BaseItem>({
         scopeType={scopeType}
         hasChildren={hasChildren}
         isExpanded={isExpanded}
+        allowNesting={allowNesting}
         colorDisplay={colorDisplay}
         onToggleExpand={onToggleExpand}
         onAddChild={onAddChild}

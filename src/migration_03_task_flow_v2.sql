@@ -252,16 +252,19 @@ CREATE TABLE scopes (
   UNIQUE (user_id, name)
 );
 
+ALTER TABLE scopes
+  ADD COLUMN allow_nesting BOOLEAN DEFAULT false;
+
 -- Add scope_id to TODOS
 ALTER TABLE todos 
   ADD COLUMN scope_id UUID REFERENCES scopes (id) ON DELETE SET NULL;
 
 -- Insert built-in system scopes
-INSERT INTO scopes (name, metadata, is_system) VALUES
-('todo',       '{"fields": {}}', true),
-('brainstorm', '{"fields": {"content": {"type": "text", "required": true}}}', true),
+INSERT INTO scopes (name, metadata, is_system, allow_nesting) VALUES
+('todo',       '{"fields": {}}', true, true),
+('brainstorm', '{"fields": {"content": {"type": "text", "required": true}}}', true, true),
 ('note',       '{"fields": {"content": {"type": "text", "required": true}}, "ui": {"title_as_content": true}}', true),
-('checklist',  '{"fields": {}}', true),
+('checklist',  '{"fields": {}}', true, true),
 ('milestone',  '{
    "fields": {
      "target_date": {"type": "date"},
@@ -269,7 +272,7 @@ INSERT INTO scopes (name, metadata, is_system) VALUES
      "progress": {"type": "number"},
      "impact": {"type": "text"}
    }
-}', true),
+}', true, true),
 ('resource',   '{
    "fields": {
      "url": {"type": "text"},
@@ -415,3 +418,5 @@ FROM (
 WHERE scopes.id = subquery.id;
 
 COMMIT;
+
+

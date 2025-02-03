@@ -117,6 +117,18 @@ const DesktopLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <nav className="flex-1 px-4">
+
+            <Link
+              href="/dashboard"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${pathname === '/dashboard' ? 'bg-secondary/50 text-primary' : 'hover:bg-secondary/30'
+                }`}
+            >
+              <Home className="h-5 w-5" />
+              Dashboard
+            </Link>
+
+            <Separator className="my-4" />
+
             <SystemScopesNav />
 
             <Separator className="my-4" />

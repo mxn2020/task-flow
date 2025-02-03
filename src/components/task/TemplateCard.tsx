@@ -42,6 +42,7 @@ export function TemplateCard({
       scopeType='all'
       hasChildren={false}
       isExpanded={false}
+      allowNesting={false}
       colorDisplay="none"
       onToggleExpand={() => {}}
       onAddChild={() => {}}

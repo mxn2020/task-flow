@@ -17,10 +17,10 @@ export function ColorDisplay({ color, display, objectType, scopeType }: ColorDis
     const height = objectType === 'template' 
       ? 'h-12'
       : scopeType === 'todo' 
-        ? 'h-8' 
+        ? 'h-10' 
         : scopeType === 'brainstorm' 
           ? 'h-20' 
-          : 'h-6';
+          : 'h-10';
 
     return (
       <div 

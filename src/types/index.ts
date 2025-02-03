@@ -41,6 +41,7 @@ export type Group = {
   color?: string;
   icon?: string;
   showInSidebar: boolean;
+  allowNesting: boolean;
   metadata: {
     fields: Record<string, FieldConfig>;
     ui?: {
