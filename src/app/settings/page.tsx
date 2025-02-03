@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabaseClient';
-import { LogOut, Moon, Sun, User, Loader2, AlertCircle } from 'lucide-react';
+import { LogOut, Moon, Sun, User, Loader2, AlertCircle, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { AppError } from '@/lib/errors/types';
@@ -26,7 +26,7 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = async () => {
     setError('');
-    
+
     try {
       if (deleteConfirmation !== 'DELETE') {
         throw new AppError('Please type DELETE to confirm', 400, 'VALIDATION_ERROR');
@@ -41,7 +41,7 @@ export default function SettingsPage() {
         .from('profiles')
         .delete()
         .eq('id', session.user.id);
-      
+
       if (deleteError) {
         throw new AppError('Failed to delete account', 500, 'DATABASE_ERROR');
       }
@@ -75,9 +75,9 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Theme</span>
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={toggleTheme}
                 aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               >
@@ -87,14 +87,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Display Settings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <APIKeys />
-          </CardContent>
-        </Card>
+        <APIKeys />
 
         <Card>
           <CardHeader>
@@ -128,26 +121,35 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Theme</h3>
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={toggleTheme}
                 aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               >
                 {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               </Button>
             </div>
-            
+
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Navigation</h3>
               <div className="space-y-2">
-                
-              <Button variant="outline" className="w-full justify-start" asChild>
+
+                <Button variant="outline" className="w-full justify-start" asChild>
                   <Link href="/profile">
                     <User className="mr-2 h-4 w-4" aria-hidden="true" />
                     Profile
                   </Link>
                 </Button>
+
+                {session?.user?.role === 'superadmin' && (
+                  <Button variant="outline" className="w-full justify-start" asChild>
+                    <Link href="/admin">
+                      <Shield className="mr-2 h-4 w-4" aria-hidden="true" />
+                      Admin Dashboard
+                    </Link>
+                  </Button>
+                )}
 
                 <Button variant="outline" className="w-full justify-start" asChild>
                   <Link href="/settings/api-keys">
@@ -156,15 +158,15 @@ export default function SettingsPage() {
                   </Link>
                 </Button>
 
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
                   onClick={() => signOut({ callbackUrl: '/' })}
                 >
                   <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
                   Log out
                 </Button>
-                
+
               </div>
             </div>
 

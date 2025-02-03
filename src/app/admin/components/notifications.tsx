@@ -23,7 +23,7 @@ type ScheduledNotification = {
   is_active: boolean;
 };
 
-export default function AdminNotificationsPage() {
+export default function AdminNotifications() {
   const { data: session } = useSession();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<ScheduledNotification[]>([]);

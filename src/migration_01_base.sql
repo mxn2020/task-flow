@@ -46,3 +46,17 @@ CREATE TRIGGER create_user_settings_for_new_profile
     FOR EACH ROW
     EXECUTE FUNCTION initialize_user_settings();
 
+alter table profiles add column role text default 'user';
+alter table profiles add constraint valid_role check (role in ('user', 'admin', 'superadmin'));
+
+-- Add new columns
+alter table profiles 
+add column is_suspended boolean default false not null,
+add column last_sign_in timestamp with time zone,
+add column password_reset_token text,
+add column password_reset_expires timestamp with time zone;
+
+-- Add indexes
+create index idx_profiles_role on profiles(role);
+create index idx_profiles_last_sign_in on profiles(last_sign_in);
+

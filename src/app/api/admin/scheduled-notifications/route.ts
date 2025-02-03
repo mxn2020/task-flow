@@ -1,61 +1,41 @@
 // app/api/admin/scheduled-notifications/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { withAuth } from '@/lib/api-middleware';
 import { supabase } from '@/lib/supabaseClient';
 import { isSuperAdmin } from '@/lib/adminUtils';
+import { AppError } from '@/lib/errors/types';
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
+export const GET = withAuth(async (req: Request, context: any, session: any) => {
   if (!await isSuperAdmin(session.user.id)) {
-    return new NextResponse('Forbidden', { status: 403 });
+    throw new AppError('Forbidden', 403, 'FORBIDDEN');
   }
 
-  try {
-    const { data, error } = await supabase
-      .from('scheduled_notifications')
-      .select('*')
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('scheduled_notifications')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-    if (error) throw error;
+  if (error) throw new AppError('Failed to fetch notifications', 500, 'DATABASE_ERROR');
 
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error fetching scheduled notifications:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
-}
+  return NextResponse.json(data);
+});
 
-export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
+export const POST = withAuth(async (req: NextRequest, context: any, session: any) => {
   if (!await isSuperAdmin(session.user.id)) {
-    return new NextResponse('Forbidden', { status: 403 });
+    throw new AppError('Forbidden', 403, 'FORBIDDEN');
   }
 
-  try {
-    const notification = await req.json();
-    const { error } = await supabase
-      .from('scheduled_notifications')
-      .insert({
-        ...notification,
-        created_by: session.user.id
-      });
+  const notification = await req.json();
+  const { error } = await supabase
+    .from('scheduled_notifications')
+    .insert({
+      ...notification,
+      created_by: session.user.id
+    });
 
-    if (error) throw error;
+  if (error) throw new AppError('Failed to create notification', 500, 'DATABASE_ERROR');
 
-    return new NextResponse('Notification created', { status: 200 });
-  } catch (error) {
-    console.error('Error creating scheduled notification:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
-}
+  return NextResponse.json({ message: 'Notification created' });
+});
 
