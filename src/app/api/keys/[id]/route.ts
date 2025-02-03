@@ -1,7 +1,7 @@
 // app/api/keys/[id]/route.ts
+
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { withAuth } from '@/lib/api-middleware';
 import { supabase } from '@/lib/supabaseClient';
 import { redis } from '@/lib/upstash';
 import { AppError } from '@/lib/errors/types';

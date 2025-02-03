@@ -341,29 +341,38 @@ const Header = ({ theme, setTheme, session }: any) => {
   );
 };
 
-const UserMenu = ({ userInitials }: { userInitials: string }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-        <Avatar>
-          <AvatarFallback>{userInitials}</AvatarFallback>
-        </Avatar>
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end">
-      <DropdownMenuItem asChild>
-        <Link href="/profile">Profile</Link>
-      </DropdownMenuItem>
-      <DropdownMenuItem asChild>
-        <Link href="/settings">Settings</Link>
-      </DropdownMenuItem>
-      <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
-        Log out
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
-
+const UserMenu = ({ userInitials }: { userInitials: string }) => {
+  const { data: session } = useSession();
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+          <Avatar>
+            <AvatarFallback>{userInitials}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link href="/profile">Profile</Link>
+        </DropdownMenuItem>
+        {session?.user?.role === 'superadmin' && (
+          <DropdownMenuItem asChild>
+            <Link href="/admin">Admin Dashboard</Link>
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem asChild>
+          <Link href="/settings">Settings</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+ };
+ 
 const MobileMenu = ({ onClose }: { onClose: () => void }) => {
   const { data: session } = useSession();
   const pathname = usePathname();
